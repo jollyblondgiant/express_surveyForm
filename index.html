@@ -1,0 +1,87 @@
+<!doctype HTML>
+<html lang='en'>
+
+<head>
+		<link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" />
+		<style>
+		#future{
+			background-color: lightgreen;
+		}
+		</style>
+
+</head>
+
+<body>
+	<div id='future'></div>
+	<form id="chat_form">
+		<div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="userNameInput" name = "userName">
+            </div>
+            <div class="form-group">
+                <label for="dojoLocation">Dojo Location:</label>
+                <select class="form-control" id="dojoLocation" name="dojoLocation">
+                    <option>Chicago</option>
+                    <option>New York</option>
+                    <option>Los Angeles</option>
+                    <option>The Shire</option>
+                    <option>Ceres Station</option>
+                </select>
+
+            </div>
+            <div class="form-group">
+                <label for="faveLang">Favorite Language:</label>
+                <select class="form-control" id="faveLang" name="faveLang">
+                    <option>Python</option>
+                    <option>JavaScript</option>
+                    <option>C#</option>
+                    <option>Klingon</option>
+                    <option>Body Language</option>
+                </select>
+
+            </div>
+
+            <div class="form-group">
+                <label for="commentArea">Comment (optional):</label>
+                <textarea class="form-control" id="commentArea" rows="3" name="comment"></textarea>
+            </div>
+		<input type="submit" value="Send">
+	</form>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		$(document).ready(function(){
+		var socket = io.connect()
+		socket.on('connect', function(data){
+			socket.emit('join', 'HELLO FROM CLIENT')
+		})
+		socket.on('broad', function(data){
+			$('#future').append("Hello, ")
+			$('#future').append(data.name+"!<br/>")
+			$('#future').append("How do you like it in ")
+			$('#future').append(data.location+"?<br/>")
+			$('#future').append("I hear you're pretty good at ")
+			$('#future').append(data.language+"!<br/>")
+			if (data.comment.length){
+			$('#future').append("You posted: ")
+			$('#future').append(data.comment)
+			}
+			console.log("!!!!!",data,"!!!!!")
+		})
+		$('form').submit(function(e){
+			e.preventDefault();
+			var message ={
+				chat : $('#chat_input').val(),
+				name : $("#userNameInput").val(),
+				location : $("#dojoLocation").val(),
+				language: $("#faveLang").val(),
+				comment: $("#commentArea").val()
+			}
+			socket.emit('messages', message);
+		})
+	})
+	</script>
+</body>
+
+</html>
